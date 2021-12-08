@@ -1,0 +1,23 @@
+{
+  "name": "electronicactivityacknowledgement",
+  "version": "1.0.0",
+  "description": "전자 활승",
+  "main": "main.js",
+  "scripts": {
+    "start":"node main.js",
+    "test": "echo yeah"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Powering111/ElectronicActivityAcknowledgement.git"
+  },
+  "author": "JJT",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Powering111/ElectronicActivityAcknowledgement/issues"
+  },
+  "homepage": "https://github.com/Powering111/ElectronicActivityAcknowledgement#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
+}
