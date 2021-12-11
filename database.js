@@ -45,7 +45,17 @@ exports.selectUser= function(){ //id,name,generation,classnum,privilege,status,e
     });
 }
 
-
+exports.checkID=function(id){
+    db.get(`SELECT id from user where id=(?)`,[id],(err,row)=>{
+        if(!err){
+            console.log(row);
+            if(row) return false;
+            else return true;
+        }else{
+            return false;
+        }
+    });
+}
 exports.authenticate= function(id,password){
     const user = db.each(`SELECT id,password from user where id=(?)`,id);
     console.log(user);

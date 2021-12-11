@@ -1,3 +1,4 @@
+const { checkPrime } = require('crypto');
 const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
@@ -68,6 +69,16 @@ app.get('/register',(req,res)=>{
         res.redirect('/');
     }
 })
+app.get('/check',(req,res)=>{
+    if(database.checkID(req.query.id)){
+        
+    }
+    else{
+        res.send('이 ID는 이미 사용되었습니다.');
+    }
+    req.query.id,req.query.password;
+
+})
 app.get('/*',(_,res)=>{res.redirect('/');})
 
 
@@ -92,3 +103,7 @@ app.get('/test',(req,res)=>{
 app.listen(PORT,()=>{
     console.log("서버가 시작되었습니다.");
 });
+
+console.log(database.checkID('juntae'));
+console.log(database.checkID('junte'));
+//database.selectUser();
