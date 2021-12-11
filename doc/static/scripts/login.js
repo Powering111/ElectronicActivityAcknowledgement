@@ -39,7 +39,7 @@ function login(e){
             statusText.style.visibility="visible";
         }
     }
-    xhr.open('POST', '/authenticate');
+    xhr.open('POST', '/login');
     xhr.setRequestHeader('Content-Type','application/json');
 
     const id = document.getElementById('login_id').value;

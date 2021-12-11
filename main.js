@@ -3,7 +3,6 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 const database = require(path.join(__dirname,'database.js'));
-database.connect();
 
 const app = express();
 const {
@@ -13,17 +12,14 @@ const {
     SESSION_SECRET = 'secret',
     NODE_ENV = 'development'
 } = process.env;
-
 const IN_PRODUCTION = NODE_ENV === 'production'
 
 app.set('view engine','pug');
 app.set('views',path.join(__dirname,'/doc/views'));
-
 app.use(express.static(path.join(__dirname,'/doc/static')));
 
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
-
 app.use(session({
     name: SESSION_NAME,
     resave: false,
@@ -36,12 +32,24 @@ app.use(session({
     },
     store:new FileStore()
 }));
+database.connect();
 
 
 
 app.get('/', (req,res)=>{
-    const {userID,privilege} = req.session;
-    res.render('main',{userID,privilege});
+    res.render('main',req.session);
+});
+
+app.post('/login',(req,res)=>{
+    if(database.authenticate(req.body.id,req.body.password)){
+        req.session.userID=req.body.id;
+        
+        req.session.save();
+        res.send('OK');
+    }
+    else{
+        res.send('로그인 실패.');
+    }
 });
 app.get('/logout',(req,res)=>{
     req.session.destroy((err)=>{
@@ -52,6 +60,17 @@ app.get('/logout',(req,res)=>{
         }
     });
 });
+
+app.get('/register',(req,res)=>{
+    if(req.session.id){
+        res.render('register');
+    }else{
+        res.redirect('/');
+    }
+})
+app.get('/*',(_,res)=>{res.redirect('/');})
+
+
 app.get('/user',(req,res)=>{
     database.createUser({
         id:'juntae',
@@ -69,13 +88,6 @@ app.get('/test',(req,res)=>{
     database.selectUser();
     res.send("yeaj");
 })
-app.post('/authenticate',(req,res)=>{
-    req.session.userID=req.body.id;
-    req.session.save();
-
-    res.send('OK');
-});
-app.get('/*',(_,res)=>{res.redirect('/');})
 
 app.listen(PORT,()=>{
     console.log("서버가 시작되었습니다.");

@@ -1,6 +1,14 @@
-| you are logged in! #{userID}
-h1 온라인 활승
-if teacher 
-    | 교사
-else 
-    | 학생
+//- you are logged in! #{userID}
+#dashboard_container
+    include navigation
+    h1 온라인 활승
+    if privilege>=1
+        | 교사
+    else 
+        | 학생
+    p
+        | id : #{id}
+        br
+        | password : #{password}
+        br
+        | name : #{name}

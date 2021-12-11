@@ -1,7 +1,13 @@
 const sqlite3 = require('sqlite3');
 const path = require('path');
+const bcrypt = require('bcrypt');
 
 let db;
+async function hash(data){
+    const salt = await bcrypt.genSalt();
+    await bcrypt.hash(data,salt);
+}
+
 exports.connect= function(){
     if(db === undefined){
         db = new sqlite3.Database(path.join(__dirname,'/db/database.db'),
@@ -37,12 +43,14 @@ exports.selectUser= function(){ //id,name,generation,classnum,privilege,status,e
         if(err) console.error(err);
         else console.log(arr);
     });
-
 }
+
+
 exports.authenticate= function(id,password){
-    const user = db.run(`SELECT id,password from user where id=(?)`,id);
+    const user = db.each(`SELECT id,password from user where id=(?)`,id);
     console.log(user);
-    if(user[0] && user[0].password===password){
+    const passwordHashed = hash(password);
+    if(user[0] && user[0].password===passwordHashed){
         return true;
     }else{
         return false;
