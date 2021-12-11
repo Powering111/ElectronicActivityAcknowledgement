@@ -1,0 +1,10 @@
+#login_container
+    form#login_form
+        h1(id="login_title") 로그인
+        p(class="login_label") ID
+        input(id="login_id",class="auth_input",type="text", name="id", autocomplete="off" ,autofocus)
+        p(class="login_label") PW
+        input(id="login_pw",class="auth_input",type="password", name="password")
+        input(id="login_submit",class="auth_submit",type="submit", value="로그인")
+        p(id="login_status") 상태
+script(src="scripts/login.js")

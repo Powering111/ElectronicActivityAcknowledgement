@@ -1,0 +1,8 @@
+extends layout.pug
+block title 
+    |온라인 활승
+block content 
+    if userID 
+        include dashboard
+    else
+        include login
