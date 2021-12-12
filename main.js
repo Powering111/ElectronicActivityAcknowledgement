@@ -4,6 +4,22 @@ const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
 const database = require(path.join(__dirname,'database.js'));
+const readline = require("readline");
+const { getUserInfo } = require('./database');
+const reader = readline.createInterface({
+  input: process.stdin,
+  output: process.stdout
+});
+reader.on('line',function(line){
+    if(line==='stop'){
+        console.log("stopping...");
+        database.close();
+        process.exit();
+    }
+    if(line==='users'){
+        database.selectUser();
+    }
+});
 
 const app = express();
 const {
@@ -38,19 +54,32 @@ database.connect();
 
 
 app.get('/', (req,res)=>{
-    res.render('main',req.session);
+    res.render('main',req.session.data);
 });
 
 app.post('/login',(req,res)=>{
-    if(database.authenticate(req.body.id,req.body.password)){
-        req.session.userID=req.body.id;
-        
-        req.session.save();
-        res.send('OK');
-    }
-    else{
-        res.send('로그인 실패.');
-    }
+    database.authenticate(req.body.id,req.body.password).then((result)=>{
+        if(result){
+            console.log("yeah");
+            database.getUserInfo(req.body.id).then((user)=>{
+                console.log("yeah2",user);
+                req.session.data={};
+                Object.assign(req.session.data,user);
+                console.log(req.session);
+                req.session.save();
+                res.send('OK');
+            }).catch((err)=>{
+                console.log(err);
+                res.send('서버 에러!');
+            });
+        }
+        else{
+            res.send('로그인 실패.');
+        }
+    }).catch((err)=>{
+        res.send('서버 에러');
+        console.error(err);
+    });
 });
 app.get('/logout',(req,res)=>{
     req.session.destroy((err)=>{
@@ -68,42 +97,55 @@ app.get('/register',(req,res)=>{
     }else{
         res.redirect('/');
     }
-})
-app.get('/check',(req,res)=>{
-    if(database.checkID(req.query.id)){
-        
-    }
-    else{
-        res.send('이 ID는 이미 사용되었습니다.');
-    }
-    req.query.id,req.query.password;
+});
+app.post('/register',(req,res)=>{
+    //TODO 예외처리
+    database.createUser(req.body);
+});
 
-})
-app.get('/*',(_,res)=>{res.redirect('/');})
-
-
+app.get('/check',async (req,res)=>{
+    database.checkID(req.query.id).then((result)=>{
+        if(result){
+            res.send("OK");
+        }
+        else{
+            res.send('이 ID는 이미 사용되었습니다.');
+        }
+    }).catch((err)=>{
+        res.send('원인 불명의 오류 발생');
+        console.log(err);
+    });
+});
 app.get('/user',(req,res)=>{
     database.createUser({
-        id:'juntae',
-        password:'something',
-        name:'정준태',
+        id:'abcd',
+        password:'abcd',
+        name:'Juntae',
         generation:38,
-        classnum:1118,
+        classnum:1111,
         privilege:0,
-        status:"yeh",
-        email:'bestjun111@gmail.com'
+        status:"asdfasdf",
+        email:'aasdfasdff'
     });
     res.send("Hi");
 })
-app.get('/test',(req,res)=>{
-    database.selectUser();
-    res.send("yeaj");
-})
 
+app.get('/*',(_,res)=>{res.redirect('/');})
+
+
+
+//------------------------------------
+
+//------------------------------------
 app.listen(PORT,()=>{
     console.log("서버가 시작되었습니다.");
 });
 
-console.log(database.checkID('juntae'));
-console.log(database.checkID('junte'));
+getUserInfo('juntae').then((info)=>{
+    console.log(info);
+}).catch((err)=>{
+    console.error(err);
+});
+// console.log('juntae : ',database.checkID('juntae'));
+// console.log('junte : ',database.checkID('junte'));
 //database.selectUser();

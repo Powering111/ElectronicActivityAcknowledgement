@@ -12,7 +12,7 @@ block content
             input(id="register_pw_re",class="auth_input",type="password", name="password", required)
 
             input(id="register_submit",class="auth_submit",type="submit", value="다음")
-            p(id="register_status1") 상태
+            p(id="register_status1", class="auth_status") 상태
         form.authForm#register_form2(style="display:none;")
             h1(class="auth_title") 등록
             p(class="register_name") 이름
@@ -26,5 +26,5 @@ block content
                     input(id="register_classnum",class="auth_input",type="number", name="password", required)
 
             input(id="register_submit2",class="auth_submit",type="submit", value="다음")
-            p(id="register_status2") 상태
+            p(id="register_status2", class="auth_status") 상태
     script(src="scripts/register.js")

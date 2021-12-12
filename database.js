@@ -3,9 +3,20 @@ const path = require('path');
 const bcrypt = require('bcrypt');
 
 let db;
-async function hash(data){
-    const salt = await bcrypt.genSalt();
-    await bcrypt.hash(data,salt);
+const hashData = async (data)=>{
+    return new Promise((resolve,reject)=>{
+        bcrypt.genSalt(10, (err,salt)=>{
+            if(err) reject(err);
+            else{
+                bcrypt.hash(data,salt,(err,hash)=>{
+                    if(err) reject(err);
+                    else{
+                        resolve(hash);
+                    }
+                })
+            }
+        });
+    });
 }
 
 exports.connect= function(){
@@ -13,11 +24,11 @@ exports.connect= function(){
         db = new sqlite3.Database(path.join(__dirname,'/db/database.db'),
         sqlite3.OPEN_CREATE|sqlite3.OPEN_READWRITE,(err)=>{
             if(err){
-                console.error('error occurred while opening database');
+                console.error('데이터베이스 연결 실패');
                 console.error(err);
             }
             else{
-                console.log("Successfully opened database");
+                console.log("데이터베이스 연결 성공");
             }
         });
         db.run(`
@@ -38,41 +49,68 @@ exports.connect= function(){
         });
     }
 }
-exports.selectUser= function(){ //id,name,generation,classnum,privilege,status,email
+exports.selectUser= function(){
     db.all(`SELECT * from user`,[],(err,arr)=>{
         if(err) console.error(err);
         else console.log(arr);
     });
 }
 
-exports.checkID=function(id){
-    db.get(`SELECT id from user where id=(?)`,[id],(err,row)=>{
-        if(!err){
-            console.log(row);
-            if(row) return false;
-            else return true;
-        }else{
-            return false;
-        }
+exports.getUserInfo= function(id){
+    return new Promise((resolve,reject)=>{
+        db.each(`SELECT id,name,generation,classnum,privilege,status,email
+                 from user where id=(?)`,[id],(err,arr)=>{
+            if(err) reject(err);
+            else resolve(arr);
+        });
     });
 }
+
+exports.checkID=function(id){
+    return new Promise(function(resolve, reject){
+        console.log('each');
+        db.each(`SELECT id from user where id=(?)`,[id],(err,row)=>{
+            console.log("fin");
+            if(!err){
+                console.log(row);
+                if(row) resolve(false);
+                else resolve(true);
+            }else{
+                reject(err);
+            }
+        });
+    });
+    
+}
 exports.authenticate= function(id,password){
-    const user = db.each(`SELECT id,password from user where id=(?)`,id);
-    console.log(user);
-    const passwordHashed = hash(password);
-    if(user[0] && user[0].password===passwordHashed){
-        return true;
-    }else{
-        return false;
-    }
+    return new Promise(function(resolve,reject){
+        db.each(`SELECT id,password from user where id=(?)`,id,(err,user)=>{
+            if(err) reject(err);
+            else{
+                console.log("user : ",user);
+                if(user){
+                    bcrypt.compare(password, user.password,(err,match)=>{
+                        if(err) reject(err);
+                        else resolve(match);
+                    }
+                    );
+                }
+                else{
+                    resolve(false);
+                }
+            }
+        });
+        
+    });
 }
 
-exports.createUser= function(values){
+exports.createUser= async function(values){
+    const passwordHashed = await hashData(values.password);
     db.run(`
         INSERT INTO user
         (id,password,name,generation,classnum,privilege,status,email) 
         values (?,?,?,?,?,?,?,?)
-    `, values.id,values.password,values.name,values.generation,values.classnum,values.privilege,values.status,values.email);
+    `, values.id,passwordHashed,values.name,values.generation,values.classnum,values.privilege,values.status,values.email);
 }
 exports.close=function(){
     db.close();

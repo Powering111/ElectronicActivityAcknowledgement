@@ -2,13 +2,21 @@
 #dashboard_container
     include navigation
     h1 온라인 활승
-    if privilege>=1
-        | 교사
-    else 
-        | 학생
     p
         | id : #{id}
         br
-        | password : #{password}
+        | generation : #{generation}
+        br
+        | classnum : #{classnum}
         br
         | name : #{name}
+        br
+        case privilege
+            when 2
+                | 권한 : 관리자
+            when 1
+                | 권한 : 교사
+            when 0
+                | 권한 : 학생
+            default 
+                | 권한 : 나도모르겠음
