@@ -34,7 +34,7 @@ exports.connect= function(){
         db.run(`
             CREATE TABLE IF NOT EXISTS user(
                 primary_key INTEGER PRIMARY KEY AUTOINCREMENT,
-                id TEXT NOT NULL,
+                id TEXT NOT NULL UNIQUE,
                 password TEXT NOT NULL,
                 name TEXT NOT NULL,
                 generation INTEGER,
@@ -68,13 +68,12 @@ exports.getUserInfo= function(id){
 
 exports.checkID=function(id){
     return new Promise(function(resolve, reject){
-        console.log('each');
-        db.each(`SELECT id from user where id=(?)`,[id],(err,row)=>{
+        db.get(`SELECT id from user where id=(?)`,[id],(err,row)=>{
             console.log("fin");
             if(!err){
-                console.log(row);
-                if(row) resolve(false);
-                else resolve(true);
+                console.log('row : ',row, row===undefined);
+                if(row === undefined)resolve(true);
+                else resolve(false);
             }else{
                 reject(err);
             }
@@ -84,10 +83,12 @@ exports.checkID=function(id){
 }
 exports.authenticate= function(id,password){
     return new Promise(function(resolve,reject){
-        db.each(`SELECT id,password from user where id=(?)`,id,(err,user)=>{
+        db.get(`SELECT id,password from user where id=(?)`,id,(err,user)=>{
+
             if(err) reject(err);
             else{
                 console.log("user : ",user);
+                
                 if(user){
                     bcrypt.compare(password, user.password,(err,match)=>{
                         if(err) reject(err);
@@ -96,7 +97,7 @@ exports.authenticate= function(id,password){
                     );
                 }
                 else{
-                    resolve(false);
+                    resolve(2);
                 }
             }
         });

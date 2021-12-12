@@ -2,11 +2,11 @@ extends layout.pug
 block title 
     | 온라인 활승 : 등록
 block content
-    #login_container
+    #auth_container
         form.authForm#register_form1(style="display:block;")
             h1(class="auth_title") 등록
             p(class="auth_label") ID
-            input(id="login_id",class="auth_input",type="text", name="id", autocomplete="off" ,autofocus, required)
+            input(id="register_id",class="auth_input",type="text", name="id", autocomplete="off" ,autofocus, required)
             p(class="auth_label") PW
             input(id="register_pw",class="auth_input",type="password", name="password", required)
             input(id="register_pw_re",class="auth_input",type="password", name="password", required)
@@ -14,13 +14,16 @@ block content
             input(id="register_submit",class="auth_submit",type="submit", value="다음")
             p(id="register_status1", class="auth_status") 상태
         form.authForm#register_form2(style="display:none;")
-            h1(class="auth_title") 등록
-            p(class="register_name") 이름
-            input(id="register_id",class="auth_input",type="text", name="id", autocomplete="off" ,autofocus, required)
-            div(style="display:flex;flex-direction:row;")
+            a(id="back_btn", onclick="back()")
+                img(src="resources/back.png", alt="back", width="28px", height="28px")
+            h1(class="auth_title" style="display:inline-block;margin-left:10px;") 등록
+            
+            p(class="auth_label") 이름
+            input(id="register_name",class="auth_input",type="text", name="id", autocomplete="off" ,autofocus, required)
+            div(style="display:flex;flex-direction:row;justify-content:space-between;")
                 div
                     p(class="auth_label") 기수
-                    input(id="register_generation",class="gen_input",type="number", name="generation", required)
+                    input(id="register_generation",class="auth_input",type="number", name="generation", required)
                 div
                     p(class="auth_label") 학번
                     input(id="register_classnum",class="auth_input",type="number", name="password", required)

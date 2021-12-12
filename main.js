@@ -3,6 +3,7 @@ const express = require('express');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
 const path = require('path');
+const { send } = require('process');
 const database = require(path.join(__dirname,'database.js'));
 const readline = require("readline");
 const { getUserInfo } = require('./database');
@@ -18,6 +19,12 @@ reader.on('line',function(line){
     }
     if(line==='users'){
         database.selectUser();
+    }
+    if(line==='selectuser'){
+        database.getUserInfo('abcd').then((result)=>{
+            console.log(result);
+        });
+
     }
 });
 
@@ -59,10 +66,12 @@ app.get('/', (req,res)=>{
 
 app.post('/login',(req,res)=>{
     database.authenticate(req.body.id,req.body.password).then((result)=>{
-        if(result){
+        if(result==1){
+            // 로그인 성공
             console.log("yeah");
             database.getUserInfo(req.body.id).then((user)=>{
                 console.log("yeah2",user);
+
                 req.session.data={};
                 Object.assign(req.session.data,user);
                 console.log(req.session);
@@ -73,8 +82,11 @@ app.post('/login',(req,res)=>{
                 res.send('서버 에러!');
             });
         }
-        else{
-            res.send('로그인 실패.');
+        else if(result==2){
+            res.send('존재하지 않는 ID입니다.');
+        }
+        else {
+            res.send('비밀번호가 틀렸습니다.');
         }
     }).catch((err)=>{
         res.send('서버 에러');
@@ -92,19 +104,29 @@ app.get('/logout',(req,res)=>{
 });
 
 app.get('/register',(req,res)=>{
-    if(req.session.id){
+    if(req.session.data===undefined){
         res.render('register');
     }else{
         res.redirect('/');
     }
 });
 app.post('/register',(req,res)=>{
-    //TODO 예외처리
-    database.createUser(req.body);
+    const values = Object.assign(req.body,{privilege:0});
+    console.log(values);
+    
+    try{
+        database.createUser(values);
+        res.send('OK');
+    }
+    catch(err){
+        console.error(err);
+        res.send('서버 오류');
+    }
 });
 
-app.get('/check',async (req,res)=>{
-    database.checkID(req.query.id).then((result)=>{
+app.post('/check',async (req,res)=>{
+    console.log(req.body.id);
+    database.checkID(req.body.id).then((result)=>{
         if(result){
             res.send("OK");
         }
@@ -116,36 +138,9 @@ app.get('/check',async (req,res)=>{
         console.log(err);
     });
 });
-app.get('/user',(req,res)=>{
-    database.createUser({
-        id:'abcd',
-        password:'abcd',
-        name:'Juntae',
-        generation:38,
-        classnum:1111,
-        privilege:0,
-        status:"asdfasdf",
-        email:'aasdfasdff'
-    });
-    res.send("Hi");
-})
 
 app.get('/*',(_,res)=>{res.redirect('/');})
 
-
-
-//------------------------------------
-
-//------------------------------------
 app.listen(PORT,()=>{
     console.log("서버가 시작되었습니다.");
 });
-
-getUserInfo('juntae').then((info)=>{
-    console.log(info);
-}).catch((err)=>{
-    console.error(err);
-});
-// console.log('juntae : ',database.checkID('juntae'));
-// console.log('junte : ',database.checkID('junte'));
-//database.selectUser();

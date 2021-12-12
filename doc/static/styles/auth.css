@@ -1,4 +1,5 @@
-#login_container{
+#auth_container{
+    
     display:flex;
     justify-content: center;
     flex-direction:column;
@@ -7,6 +8,7 @@
 }
 
 .authForm{
+    position:relative;
     margin:0 auto;
     border-radius:3px;
     box-shadow: 0 24px 50px 0 rgb(0 0 0 / 12%), 0 5px 15px rgb(0 0 0 / 7%);
@@ -33,7 +35,8 @@
     background-color:rgb(226, 255, 224);
 }
 .auth_submit{
-    background-color:rgb(240, 218, 253);
+    color:white;
+    background-color:rgb(32, 123, 241);
     padding:10px;
     border: none;
     border-radius: 5px;
@@ -41,9 +44,10 @@
     box-sizing:border-box;
     font-size:18px;
     transition:background-color 0.3s;
+    outline:none;
 }
 .auth_submit:hover{
-    background-color:rgb(225, 174, 255);
+    background-color:rgb(138, 179, 255);
 }
 .auth_submit:active{
     background-color:blue;
@@ -57,6 +61,43 @@
 }
 
 .auth_status{
-    margin-bottom:0;
+
+    margin:10px;
     visibility:hidden;
+    display:inline-block;
+}
+
+.auth_tool{
+    margin-top:5px;
+}
+
+#link_register{
+    font-size:15px;
+    display:inline;
+    float:right;
+    text-decoration:none;
+    color:rgb(99, 99, 99);
+    background-color:#ffffff;
+    transition:background-color 0.2s;
+    border:1px solid #b4b4b4;
+    border-radius:3px;
+    margin:0;
+    padding:7px 40px;
+}
+
+#link_register:hover{
+    background-color:#a596fc;
+}
+
+.login_label{
+    margin-top:10px;
+    margin-bottom:5px;
+}
+
+#back_btn{
+    transition: filter 0.2s;
+}
+
+#back_btn:hover{
+    filter:brightness(200%);
 }

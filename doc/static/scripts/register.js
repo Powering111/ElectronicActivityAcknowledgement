@@ -19,7 +19,6 @@ registerForm1.addEventListener('submit',(e)=>{
                     if(xhr.responseText==='OK'){
                         registerForm1.style.display="none";
                         registerForm2.style.display="block";
-                        registerForm2.focus();
                     }
                     else{
                         fail1(xhr.responseText);
@@ -36,11 +35,11 @@ registerForm1.addEventListener('submit',(e)=>{
                 fail1('연결 오류');
             }
         }
-        xhr.open('GET', '/check');
+        xhr.open('POST', '/check');
         xhr.setRequestHeader('Content-Type','application/json');
         try{
             xhr.send(JSON.stringify({
-                id, password
+                id
             }));
         }
         catch(e){
@@ -58,9 +57,9 @@ function register(e){
         if(xhr.readyState==xhr.DONE){
             if(xhr.status==200){
                 if(xhr.responseText==='OK'){
-                    statusText.innerText="등록이 완료되었습니다!";
-                    statusText.style.color="green";
-                    statusText.style.visibility="visible";
+                    statusText2.innerText="등록이 완료되었습니다!";
+                    statusText2.style.color="green";
+                    statusText2.style.visibility="visible";
                     setTimeout(()=>{
                         window.location.reload();
                     },1000);
@@ -71,9 +70,9 @@ function register(e){
             }
         }
         else if (xhr.readyState === xhr.LOADING) {
-            statusText.innerText="대기 중...";
-            statusText.style.color="yellow";
-            statusText.style.visibility="visible";
+            statusText2.innerText="대기 중...";
+            statusText2.style.color="yellow";
+            statusText2.style.visibility="visible";
         }
         else if (xhr.readyState===xhr.OPENED||xhr.readyState===xhr.HEADERS_RECEIVED){}
         else{
@@ -107,4 +106,9 @@ function fail2(why){
     statusText2.innerText = why;
     statusText2.style.color="red";
     statusText2.style.visibility="visible";
+}
+
+function back(e){
+    registerForm1.style.display="block";
+    registerForm2.style.display="none";
 }
